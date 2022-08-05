@@ -9,11 +9,11 @@ namespace University.Controllers
     public class StudentsController : ControllerBase
     {
         /// <summary>
-        /// Busca e retorna uma lista de alunos
+        /// Busca e retorna a lista de Alunos do banco de dados
         /// </summary>
-        /// <returns>Retorna uma lista de alunos</returns>
+        /// <returns>Retorna uma lista de Alunos</returns>
         /// <response code="200">Retorna a lista encontrada</response>
-        /// <response code="404">Não foi encontrado nenhum aluno</response>
+        /// <response code="404">Não foi encontrado nenhum Aluno</response>
         /// <response code="500">Ocorreu erro durante a execução</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -35,12 +35,12 @@ namespace University.Controllers
         }
 
         /// <summary>
-        /// Busca e retorna um aluno específico através de seu Id
+        /// Busca e retorna um Aluno específico através de seu Id
         /// </summary>
-        /// <param name="id">Id do aluno</param>
-        /// <returns>Retorna um aluno</returns>
-        /// <response code="200">Retorna o aluno encontrado</response>
-        /// <response code="404">Não foi encontrado nenhum aluno com este Id</response>
+        /// <param name="id">Id do Aluno</param>
+        /// <returns>Retorna o Aluno encontrado</returns>
+        /// <response code="200">Retorna o Aluno encontrado</response>
+        /// <response code="404">Não foi encontrado nenhum Aluno com este Id</response>
         /// <response code="500">Ocorreu erro durante a execução</response>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -61,10 +61,12 @@ namespace University.Controllers
         }
 
         /// <summary>
-        /// Adiciona um novo aluno à lista
+        /// Adiciona o Aluno ao banco de dados
         /// </summary>
         /// <param name="student">Aluno</param>
-        /// <returns></returns>
+        /// <returns>Retorna Aluno inserido com sucesso no banco de dados</returns>
+        /// <response code="201">Aluno adicionado com sucesso</response>
+        /// <response code="500">Ocorreu um erro durante a execução</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -82,8 +84,17 @@ namespace University.Controllers
             }
         }
 
+        /// <summary>
+        /// Altera informações sobre o Aluno
+        /// </summary>
+        /// <param name="id">Id do Aluno</param>
+        /// <param name="student">Aluno</param>
+        /// <returns>Retorna Aluno atualizado com sucesso</returns>
+        /// <response code="204">Aluno atualizado com sucesso</response>
+        /// <response code="404">Não foi encontrado nenhum Aluno com este Id</response>
+        /// <response code="500">Ocorreu erro durante a execução</response>
         [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Put(int id, [FromBody] Student student)
@@ -102,7 +113,7 @@ namespace University.Controllers
                 mock.Phone = student.Phone;
                 mock.Birthday = student.Birthday;
 
-                return Ok();
+                return NoContent();
             }
             catch
             {
@@ -110,8 +121,16 @@ namespace University.Controllers
             }
         }
 
+        /// <summary>
+        /// Remove um Aluno do banco de dados
+        /// </summary>
+        /// <param name="id">Id do Aluno</param>
+        /// <returns>Retorna Aluno removido com sucesso do banco de dados</returns>
+        /// <response code="204">Aluno removido com sucesso</response>
+        /// <response code="404">Não foi encontrado nenhum Aluno com este Id</response>
+        /// <response code="500">Ocorreu erro durante a execução</response>
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(int id)
@@ -125,7 +144,7 @@ namespace University.Controllers
 
                 MockStudent.Students.Remove(mock);
 
-                return Ok();
+                return NoContent();
             }
             catch
             {
