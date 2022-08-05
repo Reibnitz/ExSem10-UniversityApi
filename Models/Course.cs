@@ -10,20 +10,17 @@ namespace University.Models
         public int Id { get; set; }
 
         [Required]
-        [Column("IdInstrutor")]
-        public int IdProfessor { get; set; }
+        [Column("Nome")]
+        public string Name { get; set; }
 
-        [Required]
-        [Column("IdCurso")]
-        public int IdDegree { get; set; }
-
-        [Column("DataInicio")]
-        public DateTime StartDate { get; set; }
-
-        [Column("DataFinal")]
-        public DateTime EndDate { get; set; }
+        [Column("Requisito")]
+        public string Requisite { get; set; }
 
         [Column("CargaHoraria")]
         public int Workload { get; set; }
+
+        [Required]
+        [Column("Valor")]
+        public double Cost { get; set; }
     }
 }

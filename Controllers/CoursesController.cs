@@ -81,11 +81,10 @@ namespace University.Controllers
                     return NotFound();
 
                 mockCourse.Id = course.Id;
-                mockCourse.IdDegree = course.IdDegree;
-                mockCourse.IdProfessor = course.IdProfessor;
-                mockCourse.StartDate = course.StartDate;
-                mockCourse.EndDate = course.EndDate;
+                mockCourse.Name = course.Name;
+                mockCourse.Requisite = course.Requisite;
                 mockCourse.Workload = course.Workload;
+                mockCourse.Cost = course.Cost;
 
                 return Ok();
             }

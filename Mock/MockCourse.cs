@@ -9,29 +9,26 @@ namespace University.Mock
             new Course()
             {
                 Id = 1,
-                IdDegree = 1,
-                IdProfessor = 1,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now,
-                Workload = 111
+                Name = "Curso1",
+                Requisite = "1",
+                Workload = 111,
+                Cost = 111.11
             },
             new Course()
             {
                 Id = 2,
-                IdDegree = 2,
-                IdProfessor = 2,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now,
-                Workload = 222
+                Name = "Curso2",
+                Requisite = "2",
+                Workload = 222,
+                Cost = 222.22
             },
             new Course()
             {
                 Id = 3,
-                IdDegree = 3,
-                IdProfessor = 3,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now,
-                Workload = 333
+                Name = "Curso3",
+                Requisite = "3",
+                Workload = 333,
+                Cost = 333.33
             },
         };
     }
