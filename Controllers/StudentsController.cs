@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using University.Context;
 using University.Mock;
 using University.Models;
 
@@ -8,6 +10,15 @@ namespace University.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
+        private UniversityContext _universityContext;
+        private readonly ILogger<UniversityContext> _logger;
+
+        public StudentsController(UniversityContext universityContext, ILogger<UniversityContext> logger)
+        {
+            _universityContext = universityContext;
+            _logger = logger;
+        }
+
         /// <summary>
         /// Busca e retorna a lista de Alunos do banco de dados
         /// </summary>
@@ -23,13 +34,19 @@ namespace University.Controllers
         {
             try
             {
-                IEnumerable<Student> students = MockStudent.Students;
+                IEnumerable<Student> students = await _universityContext.Students.ToListAsync();
 
-                return students.Any() ? Ok(students) : NotFound();
+                _logger.LogInformation($"Controller: {nameof(StudentsController)} - Metodo: {nameof(Get)}");
 
+                if (students.Any() == false)
+                    return NotFound();
+
+                return Ok(students);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Controller: {nameof(StudentsController)} - Metodo: {nameof(Get)}");
+
                 return StatusCode(500);
             }        
         }
@@ -46,16 +63,23 @@ namespace University.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
-                Student? mock = MockStudent.Students.FirstOrDefault(student => student.Id == id);
+                Student? student = await _universityContext.Students.FirstOrDefaultAsync(student => student.Id == id);
 
-                return mock != null ? Ok(mock) : NotFound();
+                _logger.LogInformation($"Controller: {nameof(StudentsController)} - Metodo: {nameof(GetById)}");
+
+                if (student == null)
+                    return NotFound();
+
+                return Ok(student);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Controller: {nameof(StudentsController)} - Metodo: {nameof(GetById)}");
+
                 return StatusCode(500);
             }
         }
@@ -74,12 +98,17 @@ namespace University.Controllers
         {
             try
             {
-                MockStudent.Students.Add(student);
+                _universityContext.Students.Add(student);
+                await _universityContext.SaveChangesAsync();
+
+                _logger.LogInformation($"Controller: {nameof(StudentsController)} - Metodo: {nameof(Post)}");
 
                 return CreatedAtAction(nameof(Get), new { Id = student.Id }, student);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Controller: {nameof(StudentsController)} - Metodo: {nameof(Post)}");
+
                 return StatusCode(500);
             }
         }
@@ -88,7 +117,7 @@ namespace University.Controllers
         /// Altera informações sobre o Aluno
         /// </summary>
         /// <param name="id">Id do Aluno</param>
-        /// <param name="student">Aluno</param>
+        /// <param name="newStudent">Aluno</param>
         /// <returns>Retorna Aluno atualizado com sucesso</returns>
         /// <response code="204">Aluno atualizado com sucesso</response>
         /// <response code="404">Não foi encontrado nenhum Aluno com este Id</response>
@@ -97,27 +126,32 @@ namespace University.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Put(int id, [FromBody] Student student)
+        public async Task<IActionResult> Put(int id, [FromBody] Student newStudent)
         {
             try
             {
-                Student? mock = MockStudent.Students.FirstOrDefault(student => student.Id == id);
+                //Student? oldStudent = await _universityContext.Students.FirstOrDefaultAsync(student => student.Id == id);
+                // Não é possível alterar a entrada através de 'Update' (linha 125) usando o FirstOrDefault
 
-                if (mock == null)
+                bool studentExists = await _universityContext.Students.AnyAsync(s => s.Id == id);
+
+                _logger.LogInformation($"Controller: {nameof(StudentsController)} - Metodo: {nameof(Put)}");
+
+                if (studentExists == false)
+                {
                     return NotFound();
+                }
 
-                mock.Id = student.Id;
-                mock.Name = student.Name;
-                mock.CPF = student.CPF;
-                mock.Email = student.Email;
-                mock.Phone = student.Phone;
-                mock.Birthday = student.Birthday;
+                _universityContext.Students.Update(newStudent);
+                await _universityContext.SaveChangesAsync();
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, $"Controller: {nameof(StudentsController)} - Metodo: {nameof(Put)}");
+
+                return StatusCode(500);
             }
         }
 
@@ -137,17 +171,22 @@ namespace University.Controllers
         {
             try
             {
-                Student? mock = MockStudent.Students.FirstOrDefault(student => student.Id == id);
+                Student? student = await _universityContext.Students.FirstOrDefaultAsync(student => student.Id == id);
 
-                if (mock == null)
+                _logger.LogInformation($"Controller: {nameof(StudentsController)} - Metodo: {nameof(Delete)}");
+
+                if (student == null)
                     return NotFound();
 
-                MockStudent.Students.Remove(mock);
+                _universityContext.Students.Remove(student);
+                await _universityContext.SaveChangesAsync();
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, $"Controller: {nameof(StudentsController)} - Metodo: {nameof(Delete)}");
+
                 return StatusCode(500);
             }
         }

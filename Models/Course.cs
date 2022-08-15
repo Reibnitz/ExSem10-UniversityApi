@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace University.Models
 {
@@ -11,16 +12,20 @@ namespace University.Models
 
         [Required]
         [Column("Nome")]
+        [StringLength(50)]
         public string Name { get; set; }
 
         [Column("Requisito")]
-        public string Requisite { get; set; }
+        [StringLength(150)]
+        [AllowNull]
+        public string? Requirement { get; set; }
 
         [Column("CargaHoraria")]
-        public int Workload { get; set; }
+        [AllowNull]
+        public int? Workload { get; set; }
 
         [Required]
         [Column("Valor")]
-        public double Cost { get; set; }
+        public decimal Cost { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using University.Context;
 using University.Mock;
 using University.Models;
 
@@ -8,6 +10,15 @@ namespace University.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
+        private UniversityContext _universityContext;
+        private readonly ILogger<UniversityContext> _logger;
+
+        public CoursesController(UniversityContext universityContext, ILogger<UniversityContext> logger)
+        {
+            _universityContext = universityContext;
+            _logger = logger;
+        }
+
         /// <summary>
         /// Busca e retorna a lista de Disciplinas do banco de dados
         /// </summary>
@@ -23,12 +34,12 @@ namespace University.Controllers
         {
             try
             {
-                IEnumerable<Course> mockCourses = MockCourse.Courses;
+                IEnumerable<Course> courses = await _universityContext.Courses.ToListAsync();
 
-                if (mockCourses.Any() == false)
+                if (courses.Any() == false)
                     return NotFound();
 
-                return Ok(mockCourses);
+                return Ok(courses);
             }
             catch
             {
@@ -52,12 +63,12 @@ namespace University.Controllers
         {
             try
             {
-                Course mockCourse = MockCourse.Courses.FirstOrDefault(course => course.Id == id);
+                Course? course = await _universityContext.Courses.FirstOrDefaultAsync(c => c.Id == id);
 
-                if (mockCourse == null)
+                if (course == null)
                     return NotFound();
 
-                return Ok(mockCourse);
+                return Ok(course);
             }
             catch
             {
@@ -79,7 +90,8 @@ namespace University.Controllers
         {
             try
             {
-                MockCourse.Courses.Add(course);
+                _universityContext.Courses.Add(course);
+                await _universityContext.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(Get), new { Id = course.Id }, course);
             }
@@ -106,16 +118,13 @@ namespace University.Controllers
         {
             try
             {
-                Course mockCourse = MockCourse.Courses.FirstOrDefault(course => course.Id == id);
+                bool courseExists = await _universityContext.Courses.AnyAsync(c => c.Id == id);
 
-                if (mockCourse == null)
+                if (courseExists == false)
                     return NotFound();
 
-                mockCourse.Id = course.Id;
-                mockCourse.Name = course.Name;
-                mockCourse.Requisite = course.Requisite;
-                mockCourse.Workload = course.Workload;
-                mockCourse.Cost = course.Cost;
+                _universityContext.Courses.Update(course);
+                await _universityContext.SaveChangesAsync();
 
                 return NoContent();
             }
@@ -141,12 +150,13 @@ namespace University.Controllers
         {
             try
             {
-                Course mockCourse = MockCourse.Courses.FirstOrDefault(course => course.Id == id);
+                Course? course = await _universityContext.Courses.FirstOrDefaultAsync(c => c.Id == id);
 
-                if (mockCourse == null)
+                if (course == null)
                     return NotFound();
 
-                MockCourse.Courses.Remove(mockCourse);
+                _universityContext.Courses.Remove(course);
+                await _universityContext.SaveChangesAsync();
 
                 return NoContent();
             }
